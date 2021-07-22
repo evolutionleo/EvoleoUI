@@ -1,0 +1,45 @@
+{
+    _name : "__root",
+    _attr : {},
+    _children : [
+        {
+            _name : "root",
+            _attr : {
+                halign : "left",
+                valign : "top"
+            },
+            _children : [
+                {
+                    _name : "text",
+                    _attr : {},
+                    _children : [],
+                    _text : "Hello World!"
+                },
+                {
+                    _name : "button",
+                    _attr : {
+                        url : "http://www.jujuadams.com/"
+                    },
+                    _children : [],
+                    _text : "Click me!"
+                },
+                {
+                    _name : "button",
+                    _attr : {
+                        url : "http://www.jujuadams.com/"
+                    },
+                    _children : [],
+                    _text : "Click me!"
+                },
+                {
+                    _name : "empty_tag",
+                    _attr : {},
+                    _children : [],
+                    _text : ""
+                }
+
+            ],
+            _text : ""
+        },
+    _text : ""
+}
