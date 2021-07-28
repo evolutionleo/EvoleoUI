@@ -25,19 +25,19 @@ var spr_wrapper = new StyleSheet({
 })
 
 
-//canvas = new UICanvas([
-//	//[Div, {style: div_wrapper}, [
-//		[Div, {style: div_style}, ["text"]],
-//		[Div, {style: spr_wrapper}, [
-//			[Sprite, {style: spr_style, spr: sThing, img: 0}, []]
-//		]],
-//		[LevelRow, {level_name: "Level 1", author: "Evoleo", width: 400, height: 150}, []],
-//		[LevelRow, {level_name: "Level 2", author: "Evoleo", width: 400, height: 150}, []],
-//		[LevelRow, {level_name: "Level 3", author: "Evoleo", width: 400, height: 150}, []]
-//	//]]
-//	////[LevelRow, {level_name: "Level 1", author: "Evoleo", width: 400, height: 150}, []]
-//])
+canvas = new UICanvas([
+	[Div, {style: div_style}, ["text"]],
+	[Div, {style: spr_wrapper}, [
+		[Sprite, {style: spr_style, spr: sThing, img: 0}, []]
+	]],
+	[Div, {height: 600}, [
+		[LevelRow, {level_name: "Level 1", author: "Evoleo", width: 400, height: 150}, []],
+		[LevelRow, {level_name: "Level 2", author: "aGuy2005", width: 400, height: 150}, []],
+		[LevelRow, {level_name: "Level 3", author: "SomeDude1337", width: 400, height: 150}, []]
+	]],
+	[TextBox, {value: "string", onChange: function(value) { trace("new value: %", value) }}, []]
+])
 
-canvas = loadUICanvas("Canvases/test_canvas.xml")
-show_message(canvas)
+//canvas = loadUICanvas("Canvases/test_canvas.xml")
+//show_message(canvas)
 //show_message(array_length(canvas.root.children[0].children))

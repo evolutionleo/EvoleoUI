@@ -27,8 +27,8 @@ function UIElement(props = {}, children = []) constructor {
 	draw_pos = { x: 0, y: 0 }
 	
 	//style = new StyleSheet({})
-	style = undefined // set at mount
-	
+	style = undefined
+	default_style = undefined
 	
 	state = {}
 	
@@ -70,17 +70,17 @@ function UIElement(props = {}, children = []) constructor {
 		draw_get()
 		
 		draw_set_color(style.border.color)
-		if (style.border.left) {
-			draw_line_width(x - style.border.left/2, y, x - style.border.left/2, y + height, style.border.left)
+		if (style.border.left != 0) {
+			draw_line_width(x - style.border.left/2, y - style.border.top, x - style.border.left/2, y + height + style.border.bottom, style.border.left)
 		}
-		if (style.border.right) {
-			draw_line_width(x + width + style.border.right/2, y, x + width + style.border.right/2, y + height, style.border.right)
+		if (style.border.right != 0) {
+			draw_line_width(x + width + style.border.right/2, y - style.border.top, x + width + style.border.right/2, y + height + style.border.bottom, style.border.right)
 		}
-		if (style.border.top) {
-			draw_line_width(x, y - style.border.top/2, x + width, y - style.border.top/2, style.border.top)
+		if (style.border.top != 0) {
+			draw_line_width(x - style.border.left, y - style.border.top/2, x + width + style.border.right, y - style.border.top/2, style.border.top)
 		}
-		if (style.border.bottom) {
-			draw_line_width(x, y + height + style.border.bottom/2, x + width, y + height + style.border.bottom/2, style.border.bottom)
+		if (style.border.bottom != 0) {
+			draw_line_width(x - style.border.left, y + height + style.border.bottom/2, x + width + style.border.right, y + height + style.border.bottom/2, style.border.bottom)
 		}
 		//draw_rectangle(x - style.border.left, y - style.border.top, x + width + style.border.right, y + height + style.border.bottom, true)
 		
@@ -115,7 +115,7 @@ function UIElement(props = {}, children = []) constructor {
 		drawBackground()
 		drawBorder()
 		
-		x += style.padding.right
+		x += style.padding.left
 		y += style.padding.top
 		
 		draw_get()
@@ -152,6 +152,8 @@ function UIElement(props = {}, children = []) constructor {
 	}
 	
 	static _render = function(originX = 0, originY = 0) {
+		//return -1
+		
 		//show_debug_message("I am a " + instanceof(self) + ", and my children are: " + string(children))
 		
 		var pointerX = originX
@@ -160,14 +162,18 @@ function UIElement(props = {}, children = []) constructor {
 		if (style.display == "none")
 			return -1
 		
+		pointerX += style.margin.left
+		pointerY += style.margin.top
 		
-		_draw(originX, originY)
 		
-
-		if (rendered == undefined) {
-			rendered = UIUnwrapElements(render()) // returns an array
-		}
-		else if (about_to_rerender) {
+		// padding is used here, but we also need the border
+		_draw(pointerX, pointerY)
+		
+		pointerX += style.padding.left
+		pointerY += style.padding.top
+		
+		
+		if (about_to_rerender) {
 			trace("rerendering %...", __element_type)
 			// wipe out the previous render
 			var l = array_length(rendered)
@@ -178,8 +184,23 @@ function UIElement(props = {}, children = []) constructor {
 			}
 			
 			// new render
-			rendered = UIUnwrapElements(render()) // returns an array
+			rendered = render() // returns an array
+			if (!is_undefined(rendered))
+				rendered = UIUnwrapElements(rendered)
+			else
+				rendered = []
 			about_to_rerender = false
+		}
+		else if (is_undefined(rendered)) {
+			rendered = render() // returns an array
+			if (!is_undefined(rendered))
+				rendered = UIUnwrapElements(rendered)
+			else
+				rendered = []
+			
+			//show_message(toString() + " " + string(rendered))
+			//trace("rendered is undefined for %", __element_type)
+			//trace("now rendered is %", rendered)
 		}
 		
 		var i = 0, l = array_length(rendered)
@@ -187,6 +208,8 @@ function UIElement(props = {}, children = []) constructor {
 			var _el = rendered[i]
 			_el.canvas = canvas
 			_el.parent = self
+			
+			//trace("% mounted? %", _el.__element_type, _el.mounted)
 			
 			if (!_el.mounted)
 				_el._mount()
@@ -213,32 +236,34 @@ function UIElement(props = {}, children = []) constructor {
 					
 				}
 				
+				
 				switch(style.display) {
 					case "block": // vertically
-						pointerY += el.style.margin.top
-						
 						//show_debug_message("rendering a " + instanceof(el) + " at x=" + string(pointerX) + ", y=" + string(pointerY))
 						el._render(pointerX, pointerY)
 						
+						pointerY += el.style.margin.top
 						pointerY += el.height
 						pointerY += el.style.margin.bottom
 						break
 					case "inline":
-						pointerX += el.style.margin.left //+ el.style.padding.left
+						//+ el.style.padding.left
 						
-						if (pointerX + el.width > originX + width) {
+						// not fitting on the current line
+						if (pointerX + el.width + el.style.padding.right > originX + width - style.padding.right) {
 							pointerX = originX
-							pointerY += el.style.margin.top
 
 							el._render(pointerX, pointerY)
 							
+							pointerY += el.style.margin.top
 							pointerY += el.height
+							pointerY += el.style.margin.bottom
 						}
 						else {
 							el._render(pointerX, pointerY)
 						}
 						
-						pointerX += el.width + el.style.margin.right
+						pointerX += el.style.margin.left + el.width + el.style.margin.right
 						
 						break
 					case "none": // don't draw anything
@@ -302,15 +327,17 @@ function UIElement(props = {}, children = []) constructor {
 				}
 			})
 			//__merge_structs(self, props)
-		
-		
+			
+			if (is_undefined(default_style))
+				default_style = {}
+			
 			if (is_undefined(style))
-				style = new StyleSheet({})
-			else if is_struct(style) and !isStyleSheet(style)
-				style = new StyleSheet(style)
+				style = new StyleSheet({}, default_style)
 			else
-				style = style // lol
-		
+				style = new StyleSheet(style, default_style)
+				
+			
+			
 			//show_message(stf("assigning styles: %", style))
 		
 			if (style.x != undefined)
@@ -328,8 +355,9 @@ function UIElement(props = {}, children = []) constructor {
 			}
 		
 			mount()
-		
+			
 			mounted = true
+			//trace("")
 		}
 		
 		// mount the children
@@ -340,6 +368,8 @@ function UIElement(props = {}, children = []) constructor {
 			i++
 		}
 	}
+	
+	//trace("called the constructor for " + __element_type)
 	
 	
 	static toString = function(nested_level = 0) {
@@ -378,8 +408,8 @@ function UIClickable(props = {}, children = []) : UIElement(props, children) con
 		
 		if isHovered() {
 			if (!e) {
-				trace("_updatee")
-				trace(__element_type)
+				//trace("_updatee")
+				//trace(__element_type)
 				e = true
 			}
 			onHovered()
@@ -449,41 +479,182 @@ function UIRoot(props = {}, children = []) : UIElement(props, children) construc
 		display: "block",
 		position: "absolute"
 	})
+	
+	mount = function() {
+		trace("UI Root mounted btw")
+	}
+	
+	render = function() {
+		trace("UI Root render called?")
+		return []
+	}
 }
 
 function Div(props = {}, children = []) : UIElement(props, children) constructor {}
 
 function Text(props = {}, children = []) : UIElement(props, children) constructor {}
 
-function Button(props = {}, children = []) : UIClickable(props, children) constructor {
-	//draw = function() {
-	//	draw_set_color(c_red)
-	//	draw_circle(x, y, 3, true)
-	//	draw_circle(x + width, y, 3, true)
-	//	draw_circle(x, y + height, 3, true)
-	//	draw_circle(x + width, y + height, 3, true)
-		
-	//	draw_set_color(c_white)
-		
-	//	//draw_text(x, y - 10, string(isHovered()))
-	//	draw_text(x, y - 10, hovered)
-	//	draw_text(x, y - 50, clicked)
-	//	//draw_text(x, y - 50, device_mouse_check_button(0, mb_left))
-	//	//draw_text(x, y - 90, device_mouse_check_button_pressed(0, mb_left))
-	//	//draw_text(x, y - 90, onClick)
-	//	//draw_text(x, y - 90, onClick == global.ass_function)
-	//	//show_message(onClick)
-	//}
-	
-	//static onClick = global.ass_function
-}
+function Button(props = {}, children = []) : UIClickable(props, children) constructor {}
 
 function Sprite(props = {}, children = []) : UIElement(props, children) constructor {
-	setState({ spr: props.spr, img: props.img ? props.img : 0 })
+	setState({ spr: 0, img: 0, xscale: 1, yscale: 1, angle: 0, color: c_white, alpha: 1 })
+	// inherit
+	__merge_structs(state, props)
+	variable_struct_remove(state, "style")
+	//setState({ spr: props.spr, img: props.img ? props.img : 0 })
 	
 	
 	static draw = function() {
-		draw_sprite(state.spr, state.img, x, y)
+		if (state.xscale == 1 and state.yscale == 1)
+			draw_sprite_stretched_ext(state.spr, state.img, x, y, width, height, state.color, state.alpha)
+		else
+			draw_sprite_ext(state.spr, state.img, x, y, state.xscale, state.yscale, state.angle, state.color, state.alpha)
+	}
+}
+
+function UIInput(props = {}, children = []) : UIClickable(props, children) constructor {
+	setState({ focused: false, value: undefined })
+	
+	static onFocus = function() {}
+	static onUnfocus = function() {}
+	
+	static updateFocus = function() {
+		if (mouse_check_button_pressed(mb_left)) {
+			if (hovered) {
+				setState({focused: true})
+				onFocus()
+			}
+			else {
+				setState({focused: false})
+				onUnfocus()
+			}
+		}
+	}
+	
+	static update = function() {
+		updateFocus()
+	}
+}
+
+function TextBox(props = {}, children = []) : UIInput(props, children) constructor {
+	setState({ value: "", pointer: 0 })
+	if (variable_struct_exists(props, "value"))
+		setState({value: props.value})
+	
+	setState({ blink: true, blink_timer: 20 })
+	
+	max_blink_timer = 20
+	max_length = 15
+	
+	
+	
+	static onFocus = function() {
+		setState({ pointer: string_length(state.value) })
+	}
+	
+	static premount = function() {
+		default_style = new StyleSheet({
+			border_width: 2,
+			border_color: c_white,
+			padding: 10,
+			width: 250,
+			height: 50,
+			font: fNormal,
+			cursor_color: c_white, // specific style variables
+			cursor_alpha: 1,
+			cursor_width: 3,
+			color: c_white
+		})
+	}
+	
+	
+	static drawCursor = function(x, y, h) {
+		draw_sprite_stretched_ext(__sEmptySquare, 0, x, y, style.cursor_width, h, style.cursor_color, style.cursor_alpha)
+	}
+	
+	static draw = function() {
+		renderText(state.value, x-canvas.scroll.x, y-canvas.scroll.y)
+		
+		draw_set_font(style.font)
+		var pre_string = string_copy(state.value, 1, state.pointer)
+		
+		if (state.focused and state.blink) {
+			drawCursor(x + string_width(pre_string) + 2, y, string_height(state.value))
+		}
+	}
+	
+	static clear = function() {
+		setState({ value: "" })
+		onChange(state.value)
+	}
+	
+	static update = function() {
+		updateFocus()
+		
+		if (state.blink_timer == 0) { // toggle
+			setState({ blink: !state.blink, blink_timer: max_blink_timer })
+		}
+		else { // tick down
+			setState({ blink_timer: state.blink_timer - 1 })
+		}
+		
+		if (state.focused) {
+			if (keyboard_check_pressed(vk_anykey)) {
+				switch(keyboard_key) {
+					case vk_backspace: // erase before
+						trace(state.pointer)
+						
+						if (state.pointer > 0) { // +1 because of gosh darn 1-indexing
+							setState({ value: string_delete(state.value, state.pointer, 1) })
+							setState({ pointer: state.pointer-1 })
+							onChange(state.value)
+						}
+						break
+					case vk_delete: // erase after
+						trace(state.pointer)
+						
+						if (state.pointer < string_length(state.value)) {
+							setState({ value: string_delete(state.value, state.pointer+1, 1) })
+							onChange(state.value)
+						}
+						break
+					case vk_right:
+						setState({pointer: state.pointer+1})
+						break
+					case vk_left:
+						setState({pointer: state.pointer-1})
+						break
+					case vk_up:
+						setState({pointer: 0})
+						break
+					case vk_down:
+						setState({pointer: string_length(state.value)})
+						break
+					case vk_space: // spacebar
+						setState({ value: string_insert(" ", state.value, state.pointer+1) })
+						setState({ pointer: state.pointer+1 })
+						onChange(state.value)
+						
+						break
+					default:
+						var k = keyboard_key
+						if (ord("A") <= k and k <= ord("Z")) // uppercase letters 
+						or (ord("a") <= k and k <= ord("z")) // lowercase letters
+						or (ord("0") <= k and k <= ord("9")) // numbers
+						{
+							if (string_length(state.value) < max_length) {
+								setState({ value: string_insert(keyboard_lastchar, state.value, state.pointer+1) })
+								setState({ pointer: state.pointer+1 }) // order matters btw
+								onChange(state.value)
+							}
+						}
+						break
+				}
+			}
+		}
+		
+		// clamp the pointer
+		setState({ pointer: clamp(state.pointer, 0, string_length(state.value)) })
 	}
 }
 
@@ -510,6 +681,8 @@ function UIUnwrapElements(elements) constructor {
 				var el = new _tag(_props, UIUnwrapElements(_children))
 				el.parent = other
 				el.canvas = canvas
+				
+				//trace("Unwrap element of type %", el.__element_type)
 			}
 			else {
 				el = el_data
@@ -545,6 +718,8 @@ function UICanvas(children = []) constructor {
 	root._mount()
 	
 	static render = function() {
+		//trace("canvas renderin'")
+		//trace("root's")
 		root._render()
 	}
 	
@@ -644,7 +819,10 @@ function __merge_structs(s1, s2, setter = variable_struct_set) {
 	return s1
 }
 
-function StyleSheet(style) constructor {
+///@function	StyleSheet(style, [default_style]) -> StyleSheet
+///@param		{struct} style
+///@param		{struct} [default_style]
+function StyleSheet(style, default_style = {}) constructor {
 	__is_stylesheet = true
 	
 	display = "block" // "inline" | "block" ("flex" coming soon)
@@ -653,7 +831,7 @@ function StyleSheet(style) constructor {
 	color = c_black
 	font = -1
 	
-	bg_color = c_white
+	bg_color = c_black
 	bg_alpha = 0
 	bg_sprite = -1 // sprite index
 	bg_image = 0 // image index
@@ -790,9 +968,13 @@ function StyleSheet(style) constructor {
 	}
 	
 	// inherit the argument
+	__merge_structs(self, default_style, var_setter)
 	__merge_structs(self, style, var_setter)
 }
 
+///@function	isStyleSheet(value) -> bool
+///@param		{any} value
+///@returns		{bool} result
 function isStyleSheet(v) {
 	return is_struct(v) and variable_struct_exists(v, "__is_stylesheet") and v.__is_stylesheet
 }
