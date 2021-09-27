@@ -4,10 +4,14 @@ global.evoui_canvases = []
 #macro UI_WIDTH (display_get_gui_width())
 #macro UI_HEIGHT (display_get_gui_height())
 
+// TODO: add center halign/valign to the layout engine
 
 function UIElement(props = {}, children = []) constructor {
 	__is_uielement = true
 	__element_type = instanceof(self)
+	
+	id = undefined
+	class = ""
 	
 	mounted = false
 	
@@ -291,6 +295,16 @@ function UIElement(props = {}, children = []) constructor {
 			array_copy(_torender, array_length(children), rendered, 0, array_length(rendered))
 		
 		return _torender
+	}
+	
+	// TODO: Implement these for UIElement and UICanvas
+	static forEach = function(func) {
+		var ch = get_children()
+		for(var i = 0; i < array_length(ch); i++) {
+			var child = ch[i]
+			func(child, i)
+			child.forEach(func)
+		}
 	}
 	
 	static _update = function() {
@@ -753,6 +767,22 @@ function UICanvas(children = []) constructor {
 		scroll.y = 0
 	}
 	
+	
+	// TODO: Implement querySelector() and querySelectorAll()
+	static querySelector = function(_selector) {
+		var selector = new SimpleSelector(_selector)
+		
+	}
+	
+	static querySelectorAll = function(_selector) {
+		var selector = new SimpleSelector(_selector)
+		
+	}
+	
+	static forEach = function(func) {
+		root.forEach(func)
+	}
+	
 	array_push(global.evoui_canvases, self)
 	
 	static toString = function() {
@@ -819,11 +849,16 @@ function __merge_structs(s1, s2, setter = variable_struct_set) {
 	return s1
 }
 
-///@function	StyleSheet(style, [default_style]) -> StyleSheet
+
+// TODO: Finish the Style/StyleSheet/Selector thing
+// replace all the new StyleSheet()'s with new Style() or whatever
+
+
+///@function	Style(selector, style)
+///@param		{string|Selector} selector
 ///@param		{struct} style
-///@param		{struct} [default_style]
-function StyleSheet(style, default_style = {}) constructor {
-	__is_stylesheet = true
+function Style(selector, style) constructor {
+	__is_style = true
 	
 	display = "block" // "inline" | "block" ("flex" coming soon)
 	position = "relative" // "relative" | "absolute"
@@ -845,9 +880,19 @@ function StyleSheet(style, default_style = {}) constructor {
 	border = new UIBorder()
 	margin = new UIMargin()
 	
+	if is_string(selector)
+		selector = new SimpleSelector(selector)
+	else if !isSelector(selector) // error out
+		throw "error: selector must either a string or an instance of Selector. got " + typeof(selector)
+	
+	self.selector = selector
 	
 	
 	static var_setter = function(s, var_name, var_value) {
+		// unset
+		if var_value == undefined
+			return -1
+		
 		with(s) {
 		switch(var_name) {
 			#region Margin
@@ -968,15 +1013,123 @@ function StyleSheet(style, default_style = {}) constructor {
 	}
 	
 	// inherit the argument
-	__merge_structs(self, default_style, var_setter)
 	__merge_structs(self, style, var_setter)
 }
+
+
+global.evoui_stylesheets = []
+
+///@function	StyleSheet(styles) -> StyleSheet
+///@param		{struct|array} styles
+function StyleSheet(_styles) constructor {
+	__is_stylesheet = true
+	
+	styles = []
+	
+	if is_array(_styles) {
+		for(var i = 0; i < array_length(_styles); ++i) {
+			styles[i] = _styles[i]
+		}
+	}
+	else if isStyle(_styles) {
+		styles[0] = _styles
+	}
+	else if is_struct(_styles) {
+		var keys = variable_struct_get_names(_styles)
+		for(var i = 0; i < array_length(keys); ++i) {
+			var selector = keys[i] // key
+			var style = _styles[$ (selector)] // value
+			styles[i] = new Style(selector, style)
+		}
+	}
+}
+
+
+function Selector() constructor {
+	__is_selector = true
+	
+	static matches = function(element) {
+		throw "error: selector.matches() is not defined!"
+	}
+	
+	static get_priority = function() {
+		return 0
+	}
+}
+
+///@function	SimpleSelector(selector)
+///@param		{string} selector
+function SimpleSelector(_selector) : Selector() constructor {
+	selector = _selector
+	selected_id = undefined
+	selected_class = undefined
+	selected_tag = undefined
+	
+	if !is_string(selector) {
+		throw "selector should be a string! got " + typeof(selector)
+	}
+	
+	
+	for(var i = 1; i <= string_length(selector); i = segment_end + 1) {
+		var segment_end = min(
+							string_pos_ext(".", selector, i),
+							string_pos_ext("#", selector, i),
+							string_pos_ext("*", selector, i)
+							)
+		if (segment_end == 0) {
+			segment_end = string_length(selector)
+		}
+		
+		// initialize
+		if (string_char_at(selector, 1) == ".") { // class name
+			selected_class = string_copy(selector, 2, segment_end-i)
+		}
+		else if (string_char_at(selector, 1) == "#") { // id
+			selected_id = string_copy(selector, 2, segment_end-i)
+		}
+		else if (selector == "*") {}
+		else { // the whole thing is a tag name
+			selected_tag = selector
+		}
+	}
+	
+	
+	static matches = function(element) {
+		if (selector == "*")
+			return true
+		
+		if (!is_undefined(selected_tag)) {
+			if element.__element_type != selected_tag
+				return false
+		}
+		if (!is_undefined(selected_class)) {
+			if element.class != selected_class
+				return false
+		}
+		if (!is_undefined(selected_id)) {
+			if element.id != selected_id
+				return false
+		}
+		
+		
+		return true
+	}
+	
+	static get_priority = function() {
+		return !is_undefined(selected_id) * 1000 + !is_undefined(selected_class) * 100 + !is_undefined(selected_tag) * 1
+	}
+}
+
 
 ///@function	isStyleSheet(value) -> bool
 ///@param		{any} value
 ///@returns		{bool} result
 function isStyleSheet(v) {
 	return is_struct(v) and variable_struct_exists(v, "__is_stylesheet") and v.__is_stylesheet
+}
+
+function isSelector(v) {
+	return is_struct(v) and variable_struct_exists(v, "__is_selector") and v.__is_selector
 }
 
 function BoundsBox(right = 0, top = 0, left = 0, bottom = 0) constructor {
@@ -993,3 +1146,67 @@ function UIBorder(color = c_black, right = 0, top = 0, left = 0, bottom = 0) : B
 }
 
 function UIMargin(right = 0, top = 0, left = 0, bottom = 0) : BoundsBox(right, top, left, bottom) constructor {}
+
+
+function validate(val, expected_type) {
+	
+	var check = false
+	if is_string(expected_type) {
+		var checker_func_name1 = "is_" + expected_type
+		var checker_func_name2 = "is" + string_upper(string_copy(expected_type, 1, 1)) + string_copy(expected_type, 2, string_length(expected_type)-1)
+		// is_type() function
+		if variable_global_exists(checker_func_name1) {
+			var checker_function = variable_global_get(checker_func_name1)
+			check = checker_function(val)
+		}
+		// isType() function
+		else if variable_global_exists(checker_func_name2) {
+			var checker_function = variable_global_get(checker_func_name2)
+			check = checker_function(val)
+		}
+		else {
+			if is_struct(val)
+				check = instanceof(val) == expected_type || typeof(val) == expected_type
+			else
+				check = typeof(val) == expected_type
+		}
+	}
+	//else if is_real(expected_type) { // instance of a constructor
+		
+	//}
+	else {
+		throw "validate(): 'expected_type' should be a string or a contructor reference!"
+		check = false
+	}
+	
+	
+	if !check {
+		throw "\nExpected " + expected_type + ", got " + typeof(val)
+		return false
+	}
+	return true
+}
+
+validate("a string", "string")
+validate(12, "number")
+validate("string", "number")
+
+//// Validators
+//function validateElement(val) {
+//	if !isUIElement(val) {
+//		throw string(stacktrace) + "\nExpected UIElement, got " + typeof(val)
+//		return false
+//	}
+	
+//	return true
+//}
+
+//function validateStyleSheet(val) {
+//	if !isStyleSheet(val) {
+//		throw string(stacktrace) + "\nExpected StyleSheet, got " + typeof(val)
+//		return false
+//	}
+	
+//	return true
+//}
+
