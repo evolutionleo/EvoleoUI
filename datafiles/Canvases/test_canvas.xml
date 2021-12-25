@@ -1,6 +1,9 @@
-<Div>
-    <Text>Haha</Text>
+<Div a="string" class="container">
+    <Text class="text-haha">Haha</Text>
+    <Text class="textValue">{value}</Text>
+    <Div>This one is a plain Div</Div>
     <Div>
         <Text>This</Text>
     </Div>
+    <LevelRow level_name="Level 1" author="Evoleo" width="400" height="100"></LevelRow>
 </Div>

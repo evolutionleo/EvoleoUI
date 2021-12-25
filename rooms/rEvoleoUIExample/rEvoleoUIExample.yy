@@ -23,8 +23,8 @@
   "creationCodeFile": "",
   "inheritCode": false,
   "instanceCreationOrder": [
-    {"name":"inst_2FF7F199","path":"rooms/Room1/Room1.yy",},
-    {"name":"inst_77FA385F","path":"rooms/Room1/Room1.yy",},
+    {"name":"inst_2FF7F199","path":"rooms/rEvoleoUIExample/rEvoleoUIExample.yy",},
+    {"name":"inst_77FA385F","path":"rooms/rEvoleoUIExample/rEvoleoUIExample.yy",},
   ],
   "inheritCreationOrder": false,
   "sequenceId": null,
@@ -52,7 +52,7 @@
     "path": "folders/EvoleoUI/Demo.yy",
   },
   "resourceVersion": "1.0",
-  "name": "Room1",
+  "name": "rEvoleoUIExample",
   "tags": [],
   "resourceType": "GMRoom",
 }

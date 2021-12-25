@@ -6,7 +6,7 @@
     "path": "folders/EvoleoUI/Core.yy",
   },
   "resourceVersion": "1.0",
-  "name": "EvoleoUI",
+  "name": "EvoleoUIElement",
   "tags": [],
   "resourceType": "GMScript",
 }

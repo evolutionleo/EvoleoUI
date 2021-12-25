@@ -6,7 +6,7 @@
     "path": "folders/EvoleoUI/Core/lib.yy",
   },
   "resourceVersion": "1.0",
-  "name": "PrintF",
+  "name": "EvoleoUIValidators",
   "tags": [],
   "resourceType": "GMScript",
 }

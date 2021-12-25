@@ -19,19 +19,17 @@ global.touches = array_create(5, {x: 0, y: 0,
 })
 function update_touch_positions() {
 	for(var i = 0; i < MOUSE_DEVICE_COUNT; i++) {
-		with(global.touches[i]) {
-			x = device_mouse_x(i)
-			y = device_mouse_y(i)
-			with(left) {
-				down = device_mouse_check_button(i, mb_left)
-				pressed = device_mouse_check_button_pressed(i, mb_left)
-				released = device_mouse_check_button_released(i, mb_left)
-			}
-			with(right) {
-				down = device_mouse_check_button(i, mb_right)
-				pressed = device_mouse_check_button_pressed(i, mb_right)
-				released = device_mouse_check_button_released(i, mb_right)
-			}
+		x = device_mouse_x(i)
+		y = device_mouse_y(i)
+		with(global.touches[i].left) {
+			down = device_mouse_check_button(i, mb_left)
+			pressed = device_mouse_check_button_pressed(i, mb_left)
+			released = device_mouse_check_button_released(i, mb_left)
+		}
+		with(global.touches[i].right) {
+			down = device_mouse_check_button(i, mb_right)
+			pressed = device_mouse_check_button_pressed(i, mb_right)
+			released = device_mouse_check_button_released(i, mb_right)
 		}
 	}
 }

@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "lib",
-    "path": "folders/EvoleoUI/Core/lib.yy",
+    "name": "Core",
+    "path": "folders/EvoleoUI/Core.yy",
   },
   "resourceVersion": "1.0",
-  "name": "PrintF",
+  "name": "EvoleoUIStyles",
   "tags": [],
   "resourceType": "GMScript",
 }

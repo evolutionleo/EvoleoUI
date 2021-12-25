@@ -3,7 +3,7 @@ function LevelRow(props = {}, children = []) : UIClickable(props, children) cons
 	trace("haha img is 0 again")
 	
 	premount = function() {
-		style = new StyleSheet({
+		style = new Style({
 			width: 420,
 			height: 140,
 			margin_left: 50,

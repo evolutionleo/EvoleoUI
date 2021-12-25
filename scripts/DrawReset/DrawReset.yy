@@ -2,8 +2,8 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Core",
-    "path": "folders/EvoleoUI/Core.yy",
+    "name": "lib",
+    "path": "folders/EvoleoUI/Core/lib.yy",
   },
   "resourceVersion": "1.0",
   "name": "DrawReset",

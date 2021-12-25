@@ -6,7 +6,7 @@
     "path": "folders/EvoleoUI/Core/lib.yy",
   },
   "resourceVersion": "1.0",
-  "name": "PrintF",
+  "name": "string_split",
   "tags": [],
   "resourceType": "GMScript",
 }

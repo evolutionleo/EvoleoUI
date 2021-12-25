@@ -7,9 +7,11 @@ function EvoleoUITests() {
 	runner.addTestSuite(suite)
 	
 	suite.addTestCase(new TestCase(function() {
-		var style = new StyleSheet({})
-		assertTrue(isStyleSheet(style))
-	}, "test isStyleSheet"))
+		var styleSheet = new StyleSheet({})
+		assertTrue(isStyleSheet(styleSheet))
+		
+		styleSheet.remove()
+	}, "test isStyleSheet()"))
 	
 	suite.addTestCase(new TestCase(function() {
 		var element = new UIElement({}, [])
