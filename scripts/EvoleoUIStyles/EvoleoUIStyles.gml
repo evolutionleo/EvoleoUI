@@ -1,4 +1,6 @@
 global.evoui_stylesheets = []
+global.evoui_main_stylesheet = new StyleSheet()
+
 
 ///@function	Style(selector, style)
 ///@param		{string|Selector} selector
@@ -38,7 +40,7 @@ function Style(selector, style) constructor {
 	margin = new UIMargin()
 	
 	halign = fa_left
-	valign = fa_right
+	valign = fa_top
 	
 	// the list of variables that are not their default values
 	set_properties = []
@@ -63,6 +65,11 @@ function Style(selector, style) constructor {
 	static getPriority = function() {
 		return selector.getPriority()
 	}
+	
+	// usage: new Style("selector", { ... }).g()
+	static apply = function() { global.evoui_main_stylesheet.addStyle(self) }
+	static Global = apply
+	static g = apply
 	
 	
 	static set = function(prop_name, value, raw = false) {

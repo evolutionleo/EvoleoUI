@@ -4,7 +4,7 @@ function UIElement(props = {}, children = []) constructor {
 	__is_uielement = true
 	__element_type = instanceof(self)
 	
-	trace("i am a", __element_type)
+	//trace("i am a", __element_type)
 	
 	id = undefined
 	class = ""
@@ -22,6 +22,23 @@ function UIElement(props = {}, children = []) constructor {
 	
 	width = 100
 	height = 100
+	//width = undefined
+	//height = undefined
+	
+	//static calculateWidth = function() {
+	//	var ch = get_children()
+		
+	//	if (!is_undefined(style.width)) {
+	//		return style.width
+	//	}
+	//	else if (!is_undefined(style.min_width)) {
+			
+	//	}
+	//}
+	
+	//static calculateHeight = function() {
+		
+	//}
 	
 	// read-only: where the element is actually rendered
 	draw_pos = { x: 0, y: 0 }
@@ -33,16 +50,13 @@ function UIElement(props = {}, children = []) constructor {
 	state = {}
 	
 	///@function	setState(state)
-	///@desc		sets soem state variables
+	///@desc		sets some state variables
 	///@param		{struct} state
 	static setState = function(_state) {
 		__merge_structs(state, _state)
 	}
 	
-	
-	static update = function() {
-		
-	}
+	static update = function() {}
 	
 	static _update = function() {
 		update()
@@ -133,8 +147,8 @@ function UIElement(props = {}, children = []) constructor {
 		
 		draw_set_font(style.font)
 		draw_set_color(style.color)
-		draw_set_align(fa_left, fa_top)
-				
+		draw_set_align(style.halign, style.valign)
+		
 		draw_text(originX + canvas.scroll.x, originY + canvas.scroll.y, text)
 		
 		draw_reset()
@@ -151,11 +165,8 @@ function UIElement(props = {}, children = []) constructor {
 		return []
 	}
 	
+	// the core of the layout engine
 	static _render = function(originX = 0, originY = 0) {
-		//return -1
-		
-		//show_debug_message("I am a " + instanceof(self) + ", and my children are: " + string(children))
-		
 		var pointerX = originX
 		var pointerY = originY
 		
@@ -343,7 +354,7 @@ function UIElement(props = {}, children = []) constructor {
 			_style = new Style(default_style)
 			
 			if (!is_undefined(style)) {
-				__merge_structs(_style, style, /*_style.var_setter*/)
+				__merge_structs(_style, style/*, _style.var_setter*/)
 			}
 			
 			style = _style

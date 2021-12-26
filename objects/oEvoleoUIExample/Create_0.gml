@@ -68,11 +68,35 @@ var div_style = new Style("Div", {
 	color: c_red
 })
 
+var container_style = new Style(".container", {
+	padding: 15
+}).apply()
+
+var id_style = new Style("#specific-element", {
+	color: c_lime
+}).g()
+
+var inline_style = new Style(".inline", {
+	display: "inline"
+}).g()
+
 var sheet = new StyleSheet([ global_style, text_style, level_style, class_style, div_style ])
+
+
+// add the utility classes for some of the colors
+var COLORS = ["red", "aqua", "blue", "lime", "white", "black", "dkgray", "ltgray", "orange", "purple", "silver"]
+//var colors_sheet = new StyleSheet()
+for(var i = 0; i < array_length(COLORS); i++) {
+	var color = COLORS[i]
+	var color_style = new Style("."+color, {
+		color: variable_global_get("c_" + color)
+	}).g()
+	//colors_sheet.addStyle(color_style)
+}
 
 //styles = new StyleSheet()
 
 canvas = loadUICanvas("Canvases/test_canvas.xml")
 
-show_message(canvas)
+//show_message(canvas.toString())
 //show_message(array_length(canvas.root.children[0]))

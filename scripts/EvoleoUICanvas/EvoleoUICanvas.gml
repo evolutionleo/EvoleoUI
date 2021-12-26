@@ -117,8 +117,30 @@ function loadUICanvas(path) {
 		else
 			attr = {}
 		
-		//show_message(tag_name)
-		//show_message(tag_constructor)
+		// preprocess the attributes
+		var attr_names = variable_struct_get_names(attr), i = 0
+		repeat(array_length(attr_names)) {
+			var attr_name = attr_names[i]
+			var attr_value = attr[$ (attr_name)]
+			
+			try { // a valid json
+				var _data = json_parse(attr_value)
+				attr[$ (attr_name)] = data
+			}
+			catch(e) { // not a valid json
+				try { // a valid number
+					var _val = real(attr_value)
+					attr[$ (attr_name)] = _val
+				}
+				catch(_) { // just a string
+					attr[$ (attr_name)] = attr_value
+				}
+			}
+			
+			
+			i++
+		}
+		
 		//var tag = new tag_constructor(attr, _children)
 		//return tag
 		
