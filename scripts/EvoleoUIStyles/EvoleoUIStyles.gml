@@ -35,6 +35,13 @@ function Style(selector, style) constructor {
 	width = undefined
 	height = undefined
 	
+	min_width = undefined
+	min_height = undefined
+	
+	max_width = undefined
+	max_height = undefined
+	
+	
 	padding = new UIPadding()
 	border = new UIBorder()
 	margin = new UIMargin()
@@ -73,6 +80,7 @@ function Style(selector, style) constructor {
 	
 	
 	static set = function(prop_name, value, raw = false) {
+		trace("setting % to %", prop_name, value)
 		if (string_pos(".", prop_name)) {
 			var name_value = string_split(prop_name, ".")
 			var struct_name = name_value[0]
@@ -80,6 +88,8 @@ function Style(selector, style) constructor {
 			
 			var struct = variable_struct_get(self, struct_name)
 			variable_struct_set(struct, struct_var_name, value)
+			
+			trace("%.% = %", struct_name, struct_var_name, value)
 		}
 		else {
 			if (raw) { // set directly
@@ -91,6 +101,21 @@ function Style(selector, style) constructor {
 		}
 		
 		touch(prop_name)
+	}
+	
+	// works with things like "margin.top", etc.
+	static get = function(prop_name) {
+		if (string_pos(".", prop_name)) {
+			var name_value = string_split(prop_name, ".")
+			var struct_name = name_value[0]
+			var struct_var_name = name_value[1]
+			
+			var struct = variable_struct_get(self, struct_name)
+			return variable_struct_get(struct, struct_var_name)
+		}
+		else {
+			return variable_struct_get(self, prop_name)
+		}
 	}
 	
 	static var_setter = function(s, var_name, var_value) {
@@ -112,22 +137,25 @@ function Style(selector, style) constructor {
 				break
 			case "margin_right":
 			case "marginRight":
-				set("margin.right", var_value, true)
+			case "margin-right":
 				margin.right = var_value
 				touch("margin.right")
 				break
 			case "margin_top":
 			case "marginTop":
+			case "margin-top":
 				margin.top = var_value
 				touch("margin.top")
 				break
 			case "margin_left":
 			case "marginLeft":
+			case "margin-left":
 				margin.left = var_value
 				touch("margin.left")
 				break
 			case "margin_bottom":
 			case "marginBottom":
+			case "margin-bottom":
 				margin.bottom = var_value
 				touch("margin.bottom")
 				break
@@ -153,6 +181,7 @@ function Style(selector, style) constructor {
 				break
 			case "border_width":
 			case "borderWidth":
+			case "border-width":
 				border.right = var_value
 				border.top = var_value
 				border.left = var_value
@@ -162,21 +191,25 @@ function Style(selector, style) constructor {
 				break
 			case "border_right":
 			case "borderRight":
+			case "border-right":
 				border.right = var_value
 				touch("border.right")
 				break
 			case "border_top":
 			case "borderTop":
+			case "border-top":
 				border.top = var_value
 				touch("border.top")
 				break
 			case "border_left":
 			case "borderLeft":
+			case "border-left":
 				border.left = var_value
 				touch("border.left")
 				break
 			case "border_bottom":
 			case "borderBottom":
+			case "border-bottom":
 				border.bottom = var_value
 				touch("border.bottom")
 				break
@@ -185,6 +218,8 @@ function Style(selector, style) constructor {
 			case "borderColor":
 			case "border_colour":
 			case "borderColour":
+			case "border-color":
+			case "border-colour":
 				border.color = var_value
 				touch("border.color")
 				break
@@ -204,21 +239,25 @@ function Style(selector, style) constructor {
 				break
 			case "padding_right":
 			case "paddingRight":
+			case "padding-right":
 				padding.right = var_value
 				touch("padding.right")
 				break
 			case "padding_top":
 			case "paddingTop":
+			case "padding-top":
 				padding.top = var_value
 				touch("padding.top")
 				break
 			case "padding_left":
 			case "paddingLeft":
+			case "padding-left":
 				padding.left = var_value
 				touch("padding.left")
 				break
 			case "padding_bottom":
 			case "paddingBottom":
+			case "padding-bottom":
 				padding.bottom = var_value
 				touch("padding.bottom")
 				break
@@ -227,6 +266,9 @@ function Style(selector, style) constructor {
 			#region Background
 			
 			case "bg_color":
+			case "bg-color":
+			case "background_color":
+			case "background-color":
 				bg_color = var_value
 				touch("bg_color")
 				
@@ -295,6 +337,34 @@ function Style(selector, style) constructor {
 				touch("valign")
 				break
 			#endregion
+			#region Size
+			
+			case "min_width":
+			case "min-width":
+			case "minWidth":
+				min_width = var_value
+				touch("min_width")
+				break
+			case "max_width":
+			case "max-width":
+			case "maxWidth":
+				max_width = var_value
+				touch("max_width")
+				break
+			case "min_height":
+			case "min-height":
+			case "minHeight":
+				min_height = var_value
+				touch("min_height")
+				break
+			case "max_height":
+			case "maxheight":
+			case "maxHeight":
+				max_height = var_value
+				touch("max_height")
+				break
+			
+			#endregion
 			
 			default:
 				variable_struct_set(self, var_name, var_value)
@@ -310,7 +380,7 @@ function Style(selector, style) constructor {
 			var set_names = style.set_properties, i = 0
 			repeat(array_length(set_names)) {
 				var name = set_names[i]
-				var value = variable_struct_get(style, name)
+				var value = style.get(name)
 				set(name, value, true)
 				i++
 			}

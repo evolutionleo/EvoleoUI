@@ -79,8 +79,8 @@ function UIClickable(props = {}, children = []) : UIElement(props, children) con
 	}
 	
 	static isHovered = function() {
-		var mx = device_mouse_raw_x(0),
-			my = device_mouse_raw_y(0)
+		var	mx = device_mouse_raw_x(0),
+				my = device_mouse_raw_y(0)
 		
 		return (draw_pos.x <= mx && mx <= draw_pos.x + width)
 		   and (draw_pos.y <= my && my <= draw_pos.y + height)

@@ -1,7 +1,7 @@
-#region Validators
-
+///@function	validate(val, expected_type)
+///@param		{any} val
+///@param		{string} expected_type
 function validate(val, expected_type) {
-	
 	var check = false
 	if is_string(expected_type) {
 		var checker_func_name1 = "is_" + expected_type
@@ -33,14 +33,16 @@ function validate(val, expected_type) {
 	
 	
 	if !check {
-		throw "\nExpected " + expected_type + ", got " + typeof(val) + ". (check the stacktrace below)"
+		throw ("\n#\n# Validation failed! Expected \"" + expected_type + "\", got \"" + typeof(val) + "\". (check the stacktrace below)\n#\n")
 		return false
 	}
 	return true
 }
 
-//validate("a string", "string")
-//validate(12, "number")
-//validate("string", "number")
+function __validate_tests() {
+	validate("a string", "string")
+	validate(12, "number")
+	validate("string", "number") // supposed to crash here
+}
 
-#endregion
+//__validate_tests()

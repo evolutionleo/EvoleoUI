@@ -3,9 +3,9 @@ function LevelRow(props = {}, children = []) : UIClickable(props, children) cons
 	trace("haha img is 0 again")
 	
 	premount = function() {
-		style = new Style({
-			width: 420,
-			height: 140,
+		default_style = new Style({
+			//width: 420,
+			//height: 140,
 			margin_left: 50,
 			margin_bottom: 50,
 			padding: 20,
@@ -35,12 +35,12 @@ function LevelRow(props = {}, children = []) : UIClickable(props, children) cons
 			[Div, {style: {
 				position: "relative",
 				display: "inline",
-				width: 420+20*2,
-				height: 140
+				//width: 420+20*2,
+				//height: 140
 			}}, [
-			  [Div, {style: { position: "relative", display: "block", width: 300-20, height: 100-20*2 }}, [
-				[Text, {style: {font: fH4, color: c_white}, width: 300-20, height: 80-20}, [props.level_name]],
-				[Text, {style: {font: fNormal, color: c_white}, width: 300-20, height: 60-20}, ["by: " + string(props.author)]]
+			  [Div, {style: { position: "relative", display: "block", /*width: 300-20, height: 100-20*2*/ }}, [
+				[Text, {style: {font: fH4, color: c_white}, /*width: 300-20, height: 80-20*/}, [props.level_name]],
+				[Text, {style: {font: fNormal, color: c_white}, /*width: 300-20, height: 60-20*/}, ["by: " + string(props.author)]]
 			  ]],
 			  [Button, {
 					onClick: playButton,
@@ -51,8 +51,9 @@ function LevelRow(props = {}, children = []) : UIClickable(props, children) cons
 					//	draw_text(x, y-10, string(self.state))
 					//},
 					style: {
-						width: 120-20,
+						/*width: 120-20,
 						height: 140-20*2,
+						*/
 						//padding: 10,
 						border_width: 4,
 						border_color: c_white

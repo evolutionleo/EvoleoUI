@@ -20,25 +20,85 @@ function UIElement(props = {}, children = []) constructor {
 	x = 0
 	y = 0
 	
-	width = 100
-	height = 100
-	//width = undefined
-	//height = undefined
+	//width = 100
+	//height = 100
+	width = undefined
+	height = undefined
 	
-	//static calculateWidth = function() {
-	//	var ch = get_children()
+	static getWidth = function() {
+		if (is_undefined(width)) calculateWidth()
+		return width
+	}
+	
+	static getHeight = function() {
+		if (is_undefined(height)) calculateHeight()
+		return height
+	}
+	
+	static calculateWidth = function() {
+		width = 0
 		
-	//	if (!is_undefined(style.width)) {
-	//		return style.width
-	//	}
-	//	else if (!is_undefined(style.min_width)) {
+		if (!is_undefined(style.width)) {
+			width = style.width
+		}
+		//else if (!is_undefined(style.min_width)) {
 			
-	//	}
-	//}
-	
-	//static calculateHeight = function() {
+		//}
+		else {
+			// TODO: support dynamic width
+			width = 100
+		}
 		
-	//}
+		
+		if (!is_undefined(style.min_width))
+			width = max(width, style.min_width)
+		
+		if (!is_undefined(style.max_width))
+			width = min(width, style.max_width)
+		
+		
+		return width
+	}
+	
+	static calculateHeight = function() {
+		height = 0
+		
+		if (style.height != undefined) {
+			height = style.height
+			return height
+		}
+		
+		
+		height += style.padding.top
+		
+		self.forEach(function(child, i, parent) {
+			if (is_string(child)) { // calculate string_height() with the parent's font
+				draw_get()
+				draw_set_font(parent.style.font)
+				height += string_height(child)
+				draw_reset()
+			}
+			else if isUIElement(child) {
+				if (child.style.display == "none")
+					return;
+				
+				height += child.style.margin.top
+				height += child.getHeight()
+				height += child.style.margin.bottom
+			}
+			else { /* wtf */ }
+		})
+		
+		height += style.padding.bottom
+		
+		if (!is_undefined(style.min_height))
+			height = max(height, style.min_height)
+		
+		if (!is_undefined(style.max_height))
+			height = min(height, style.max_height)
+		
+		//show_message(stf("Calculated height: %", height))
+	}
 	
 	// read-only: where the element is actually rendered
 	draw_pos = { x: 0, y: 0 }
@@ -260,17 +320,21 @@ function UIElement(props = {}, children = []) constructor {
 						//+ el.style.padding.left
 						
 						// not fitting on the current line
-						if (pointerX + el.width + el.style.padding.right > originX + width - style.padding.right) {
+						if (pointerX + el.width + el.style.margin.left > originX + width - style.padding.right) {
 							pointerX = originX
-
-							el._render(pointerX, pointerY)
 							
 							pointerY += el.style.margin.top
 							pointerY += el.height
 							pointerY += el.style.margin.bottom
+							
+							el._render(pointerX, pointerY)
 						}
 						else {
 							el._render(pointerX, pointerY)
+							
+							pointerX += el.style.margin.left
+							pointerX += el.width
+							pointerX += el.style.margin.right
 						}
 						
 						pointerX += el.style.margin.left + el.width + el.style.margin.right
@@ -308,8 +372,9 @@ function UIElement(props = {}, children = []) constructor {
 		var ch = get_children()
 		for(var i = 0; i < array_length(ch); i++) {
 			var child = ch[i]
-			func(child, i)
-			child.forEach(func)
+			func(child, i, self)
+			if (isUIElement(child))
+				child.forEach(func)
 		}
 	}
 	
@@ -367,28 +432,25 @@ function UIElement(props = {}, children = []) constructor {
 				x = style.x
 			if (style.y != undefined)
 				y = style.y
-	
-			if (style.width != undefined) {
-				//show_message("style width isn't undefined")
-				width = style.width
-			}
-			if (style.height != undefined) {
-				//show_message("style height isn't undefined")
-				height = style.height
+			
+			
+			// mount the children
+			var i = 0, l = array_length(children)
+			repeat(l) {
+				var child = children[i]
+				
+				if isUIElement(child) {
+					child._mount()
+				}
+				i++
 			}
 		
+			calculateWidth()
+			calculateHeight()
+			
 			mount()
 			
 			mounted = true
-			//trace("")
-		}
-		
-		// mount the children
-		var i = 0, l = array_length(children)
-		repeat(l) {
-			if isUIElement(children[i])
-				children[i]._mount()
-			i++
 		}
 	}
 	
@@ -397,17 +459,17 @@ function UIElement(props = {}, children = []) constructor {
 		applied_styles = []
 		// collect all the matching styles from stylesheets
 		var i = 0
-		trace("there are % styles in the sheet.", array_length(global.evoui_stylesheets))
+		//trace("there are % styles in the sheet.", array_length(global.evoui_stylesheets))
 		repeat(array_length(global.evoui_stylesheets)) {
 			var stylesheet = global.evoui_stylesheets[i]
 			
 			var _styles = stylesheet.styles, j = 0
 			repeat(array_length(_styles)) {
 				var _style = _styles[j]
-				trace("trying to match style w/ selector: " + string(_style.selector.selector))
+				//trace("trying to match style w/ selector: " + string(_style.selector.selector))
 				if (_style.selector.matches(self)) {
-					trace("match!")
-					trace("the priority of this one is:", _style.getPriority())
+					//trace("match!")
+					//trace("the priority of this one is:", _style.getPriority())
 					array_push(applied_styles, _style)
 				}
 				j++

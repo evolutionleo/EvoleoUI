@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Components",
-    "path": "folders/EvoleoUI/Components.yy",
+    "name": "lib",
+    "path": "folders/EvoleoUI/Core/lib.yy",
   },
   "resourceVersion": "1.0",
-  "name": "LevelRow",
+  "name": "Pack",
   "tags": [],
   "resourceType": "GMScript",
 }

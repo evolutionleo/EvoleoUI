@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "lib",
-    "path": "folders/EvoleoUI/Core/lib.yy",
+    "name": "Components",
+    "path": "folders/EvoleoUI/Components.yy",
   },
   "resourceVersion": "1.0",
-  "name": "EvoleoUIValidators",
+  "name": "InventoryUI",
   "tags": [],
   "resourceType": "GMScript",
 }
