@@ -30,20 +30,33 @@ function Style(selector, style) constructor {
 	bg_sprite = -1 // sprite index
 	bg_image = 0 // image index
 	
+	/** @type {Real} */
 	x = undefined
+	/** @type {Real} */
 	y = undefined
+	/** @type {Real} */
 	width = undefined
+	/** @type {Real} */
 	height = undefined
 	
+	/** @type {Real} */
 	min_width = undefined
+	/** @type {Real} */
 	min_height = undefined
 	
+	/** @type {Real} */
 	max_width = undefined
+	/** @type {Real} */
 	max_height = undefined
 	
 	
+	/** @type {Struct.UIPadding} */
 	padding = new UIPadding()
+	
+	/** @type {Struct.UIBorder} */
 	border = new UIBorder()
+	
+	/** @type {Struct.UIMargin} */
 	margin = new UIMargin()
 	
 	halign = fa_left
@@ -51,7 +64,7 @@ function Style(selector, style) constructor {
 	
 	// the list of variables that are not their default values
 	set_properties = []
-	static touch = function(prop_name) { array_push(set_properties, prop_name)}
+	static touch = function(prop_name) { array_push(set_properties, prop_name) }
 	static propertyIsSet = function(prop_name) {
 		var i = 0
 		repeat(array_length(set_properties)) {
@@ -67,6 +80,7 @@ function Style(selector, style) constructor {
 	else if !isSelector(selector) // error out
 		throw "error: selector must either a string or an instance of Selector. got " + typeof(selector)
 	
+	/** @type {Struct.Selector} */
 	self.selector = selector
 	
 	static getPriority = function() {
@@ -74,6 +88,9 @@ function Style(selector, style) constructor {
 	}
 	
 	// usage: new Style("selector", { ... }).g()
+	/**
+	@function apply()
+	*/
 	static apply = function() { global.evoui_main_stylesheet.addStyle(self) }
 	static Global = apply
 	static g = apply
@@ -399,7 +416,7 @@ function Style(selector, style) constructor {
 
 ///@function	StyleSheet(styles) -> StyleSheet
 ///@param		{struct|array} styles
-function StyleSheet(_styles) constructor {
+function StyleSheet(_styles = []) constructor {
 	__is_stylesheet = true
 	
 	styles = []

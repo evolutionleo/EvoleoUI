@@ -5,31 +5,46 @@
 // multi-touch
 #macro MOUSE_DEVICE_COUNT 5
 
-global.touches = array_create(5, {x: 0, y: 0,
-	left: {
-		down: false,
-		pressed: false,
-		released: false
-	},
-	right: {
+
+/**
+@ignore
+*/
+function TouchStruct() constructor {
+	x = 0
+	y = 0
+	left = {
 		down: false,
 		pressed: false,
 		released: false
 	}
-})
+	right = {
+		down: false,
+		pressed: false,
+		released: false
+	}
+}
+
+global.touches = []
+for(var i = 0; i < MOUSE_DEVICE_COUNT; i++) {
+	global.touches[i] = new TouchStruct()
+}
+
+/// @context TouchStruct
 function update_touch_positions() {
 	for(var i = 0; i < MOUSE_DEVICE_COUNT; i++) {
-		x = device_mouse_x(i)
-		y = device_mouse_y(i)
-		with(global.touches[i].left) {
-			down = device_mouse_check_button(i, mb_left)
-			pressed = device_mouse_check_button_pressed(i, mb_left)
-			released = device_mouse_check_button_released(i, mb_left)
-		}
-		with(global.touches[i].right) {
-			down = device_mouse_check_button(i, mb_right)
-			pressed = device_mouse_check_button_pressed(i, mb_right)
-			released = device_mouse_check_button_released(i, mb_right)
+		with(global.touches[i]) {
+			self.x = device_mouse_x(i)
+			self.y = device_mouse_y(i)
+			with(global.touches[i].left) {
+				down = device_mouse_check_button(i, mb_left)
+				pressed = device_mouse_check_button_pressed(i, mb_left)
+				released = device_mouse_check_button_released(i, mb_left)
+			}
+			with(global.touches[i].right) {
+				down = device_mouse_check_button(i, mb_right)
+				pressed = device_mouse_check_button_pressed(i, mb_right)
+				released = device_mouse_check_button_released(i, mb_right)
+			}
 		}
 	}
 }

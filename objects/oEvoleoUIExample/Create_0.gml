@@ -70,15 +70,19 @@ var div_style = new Style("Div", {
 
 var container_style = new Style(".container", {
 	padding: 15
-}).apply()
+})
+container_style.apply()
+
 
 var id_style = new Style("#specific-element", {
 	color: c_lime
-}).g()
+})
+id_style.g()
 
 var inline_style = new Style(".inline", {
 	display: "inline"
-}).g()
+})
+inline_style.g()
 
 var sheet = new StyleSheet([ global_style, text_style, level_style, class_style, div_style ])
 

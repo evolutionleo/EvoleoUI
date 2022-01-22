@@ -1,16 +1,24 @@
-// TODO: add center halign/valign to the layout engine
+// TODO: add center halign/valign support to the layout engine
 
+/**
+@function UIElement(props, children)
+@param    {struct} props
+@param	  {Array.Struct.UIElement} children
+*/
 function UIElement(props = {}, children = []) constructor {
 	__is_uielement = true
 	__element_type = instanceof(self)
 	
 	//trace("i am a", __element_type)
 	
+	/** @type {string} */
 	id = undefined
+	/** @type {string} */
 	class = ""
 	
 	mounted = false
 	
+	/** @type {Array.Struct.UIElement} */
 	self.children = children
 	self.props = props
 	
@@ -22,7 +30,10 @@ function UIElement(props = {}, children = []) constructor {
 	
 	//width = 100
 	//height = 100
+	
+	/// @type {real}
 	width = undefined
+	/// @type {real}
 	height = undefined
 	
 	static getWidth = function() {
@@ -71,7 +82,10 @@ function UIElement(props = {}, children = []) constructor {
 		
 		height += style.padding.top
 		
+		height = 0
+		///@context {UIElement}
 		self.forEach(function(child, i, parent) {
+			///@context {UIElement}
 			if (is_string(child)) { // calculate string_height() with the parent's font
 				draw_get()
 				draw_set_font(parent.style.font)
@@ -103,6 +117,7 @@ function UIElement(props = {}, children = []) constructor {
 	// read-only: where the element is actually rendered
 	draw_pos = { x: 0, y: 0 }
 	
+	/** @type {Struct.Style} */
 	//style = new Style({})
 	style = undefined
 	default_style = undefined
