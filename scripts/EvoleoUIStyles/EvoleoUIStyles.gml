@@ -97,7 +97,7 @@ function Style(selector, style) constructor {
 	
 	
 	static set = function(prop_name, value, raw = false) {
-		trace("setting % to %", prop_name, value)
+		//trace("setting % to %", prop_name, value)
 		if (string_pos(".", prop_name)) {
 			var name_value = string_split(prop_name, ".")
 			var struct_name = name_value[0]

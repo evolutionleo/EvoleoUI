@@ -7,12 +7,12 @@ global.__draw_state = {
 }
 
 function draw_get() {
-	global.__draw_state = {
-		halign: draw_get_halign(),
-		valign: draw_get_valign(),
-		color:	draw_get_color(),
-		alpha:	draw_get_alpha(),
-		font:	draw_get_font()
+	with(global.__draw_state) {
+		halign = draw_get_halign()
+		valign = draw_get_valign()
+		color = draw_get_color()
+		alpha = draw_get_alpha()
+		font = draw_get_font()
 	}
 }
 
@@ -26,26 +26,32 @@ function draw_reset() {
 
 
 function draw_set_align(halign, valign) {
+	gml_pragma("forceinline")
 	draw_set_halign(halign)
 	draw_set_valign(valign)
 }
 
 function draw_reset_color() {
+	gml_pragma("forceinline")
 	draw_set_color(global.__draw_state.color)
 }
 
 function draw_reset_font() {
+	gml_pragma("forceinline")
 	draw_set_font(global.__draw_state.alpha)
 }
 
 function draw_reset_alpha() {
+	gml_pragma("forceinline")
 	draw_set_alpha(global.__draw_state.alpha)
 }
 
 function draw_reset_halign() {
+	gml_pragma("forceinline")
 	draw_set_halign(global.__draw_state.halign)
 }
 
 function draw_reset_valign() {
+	gml_pragma("forceinline")
 	draw_set_valign(global.__draw_state.valign)
 }

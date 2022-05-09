@@ -9,6 +9,15 @@ function UICanvas(children = []) constructor {
 	root = new UIRoot()
 	
 	scroll = { x: 0, y: 0 }
+	scroll_limit = {
+		x: {
+			min: 0,
+			max: 99999
+		},
+		y: {
+			min: 0, max: 99999
+		}
+	}
 	
 	with (root) {
 		self.canvas = other
@@ -22,6 +31,10 @@ function UICanvas(children = []) constructor {
 		//trace("canvas renderin'")
 		//trace("root's")
 		root._render()
+	}
+	
+	static draw = function() {
+		root.__draw()
 	}
 	
 	static _recursively_update = function(element) {
@@ -47,11 +60,20 @@ function UICanvas(children = []) constructor {
 	static addScroll = function(_x = 0, _y = 0) {
 		scroll.x += _x
 		scroll.y += _y
+		
+		clampScroll()
 	}
 	
 	static resetScroll = function() {
 		scroll.x = 0
 		scroll.y = 0
+		
+		clampScroll()
+	}
+	
+	static clampScroll = function() {
+		scroll.x = clamp(scroll.x, scroll_limit.x.min, scroll_limit.x.max)
+		scroll.y = clamp(scroll.y, scroll_limit.y.min, scroll_limit.y.max)
 	}
 	
 	
@@ -66,8 +88,9 @@ function UICanvas(children = []) constructor {
 		
 	}
 	
-	static forEach = function(func) {
-		root.forEach(func)
+	// deep forEach
+	static forEach = function(func, includeText = true) {
+		root.forEach(func, includeText)
 	}
 	
 	array_push(global.evoui_canvases, self)

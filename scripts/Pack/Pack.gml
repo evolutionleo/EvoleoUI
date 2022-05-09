@@ -1,4 +1,5 @@
 global.__packed_data =  {}
+///@type {Array.string}
 global.__pack_stack = []
  
 ///@function getNextHash() -> string hash

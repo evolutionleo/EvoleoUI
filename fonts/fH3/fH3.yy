@@ -3,6 +3,7 @@
   "glyphOperations": 0,
   "interpreter": 0,
   "pointRounding": 0,
+  "applyKerning": 0,
   "fontName": "Roboto",
   "styleName": "Regular",
   "size": 42.0,
@@ -20,6 +21,7 @@
     "path": "texturegroups/Default",
   },
   "ascenderOffset": 0,
+  "ascender": 0,
   "glyphs": {
     "32": {"x":2,"y":2,"w":14,"h":66,"character":32,"shift":14,"offset":0,},
     "33": {"x":251,"y":206,"w":7,"h":66,"character":33,"shift":14,"offset":4,},

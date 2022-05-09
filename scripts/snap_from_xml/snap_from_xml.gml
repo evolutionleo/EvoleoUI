@@ -54,7 +54,7 @@ function snap_from_xml(_string)
         var _value = buffer_read(_buffer, buffer_u8);
         
         if (_skip_whitespace && (_value > 32)) _skip_whitespace = false;
-    
+		
         if (!_skip_whitespace)
         {
             if (_in_tag)
@@ -203,6 +203,7 @@ function snap_from_xml(_string)
         
                 if (!_in_string && (_value == ord(">")))
                 {
+					
                     if (!_tag_reading_attributes && !_tag_is_comment)
                     {
                         if (!_tag_is_prolog && (_tag == undefined))
@@ -258,13 +259,16 @@ function snap_from_xml(_string)
                         }
                     }
                     
-                    _tag      = undefined;
-                    _in_tag   = false;
-                    _in_key   = false;
-                    _in_value = false;
+					
+					if (!_tag_is_comment || _tag_is_comment && _previous_value == ord("-")) {
+	                    _tag      = undefined;
+	                    _in_tag   = false;
+	                    _in_key   = false;
+	                    _in_value = false;
+					}
                 }
             }
-            else if ((_value == 10) || (_value == 13)) //Newline
+            else if (((_value == 10) || (_value == 13)) && !_tag_is_comment)
             {
                 _in_text        = false;
                 _skip_whitespace = true;

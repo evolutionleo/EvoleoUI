@@ -101,7 +101,7 @@ function UIElement(props = {}, children = []) constructor {
 				height += child.style.margin.bottom
 			}
 			else { /* wtf */ }
-		})
+		}, true)
 		
 		height += style.padding.bottom
 		
@@ -116,6 +116,8 @@ function UIElement(props = {}, children = []) constructor {
 	
 	// read-only: where the element is actually rendered
 	draw_pos = { x: 0, y: 0 }
+	// read-only: where the text is rendered
+	text_draw_pos = { x: 0, y: 0 }
 	
 	/** @type {Struct.Style} */
 	//style = new Style({})
@@ -129,6 +131,7 @@ function UIElement(props = {}, children = []) constructor {
 	///@param		{struct} state
 	static setState = function(_state) {
 		__merge_structs(state, _state)
+		rerender()
 	}
 	
 	static update = function() {}
@@ -145,7 +148,7 @@ function UIElement(props = {}, children = []) constructor {
 		if (style.bg_sprite) {
 			draw_sprite_stretched(style.bg_sprite, style.bg_image, x, y, width, height)
 		}
-		else {
+		else if (style.bg_alpha > 0) {
 			draw_set_color(style.bg_color)
 			draw_set_alpha(style.bg_alpha)
 		
@@ -176,30 +179,15 @@ function UIElement(props = {}, children = []) constructor {
 		draw_reset()
 	}
 	
-	static _draw = function(originX, originY) {
+	// draw at x, y with the border and everything
+	static _draw = function() {
 		draw_get()
 		
 		prev_x = x
 		prev_y = y
 		
-		//show_debug_message(typeof(canvas.scroll))
-		
-		switch(style.position) {
-			case "absolute":
-				x = x + canvas.scroll.x
-				y = y + canvas.scroll.y
-				break
-			case "relative":
-				x = originX + x + canvas.scroll.x
-				y = originY + y + canvas.scroll.y
-				break
-			default:
-				throw "Error: Unknown style.position value! (" + string(style.position) + ")"
-				break
-		}
-		
-		draw_pos.x = x
-		draw_pos.y = y
+		x = draw_pos.x
+		y = draw_pos.y
 		
 		drawBackground()
 		drawBorder()
@@ -217,6 +205,47 @@ function UIElement(props = {}, children = []) constructor {
 		draw_reset()
 	}
 	
+	// recursively draw with all the children
+	static __draw = function() {
+		_draw()
+		
+		self.forEach(function(el, i, parent) {
+			if (is_string(el)) {
+				with(parent) {
+					renderText(el, text_draw_pos.x + style.padding.left, text_draw_pos.y + style.padding.top)
+				}
+			}
+			else {
+				el._draw()
+			}
+		}, true)
+	}
+	
+	static _setDrawPos = function(originX, originY) {
+		switch(style.position) {
+			case "absolute":
+				draw_pos.x = x + canvas.scroll.x
+				draw_pos.y = y + canvas.scroll.y
+				break
+			case "relative":
+				draw_pos.x = originX + x + canvas.scroll.x
+				draw_pos.y = originY + y + canvas.scroll.y
+				break
+			case "sticky":
+				draw_pos.x = x
+				draw_pos.y = y
+			break
+			default:
+				throw "Error: Unknown style.position value! (" + string(style.position) + ")"
+				break
+		}
+	}
+	
+	_setTextDrawPos = function(originX, originY) {
+		text_draw_pos.x = originX
+		text_draw_pos.y  = originY
+	}
+	
 	static renderText = function(text = "", originX = 0, originY = 0) {
 		draw_get()
 		
@@ -224,7 +253,7 @@ function UIElement(props = {}, children = []) constructor {
 		draw_set_color(style.color)
 		draw_set_align(style.halign, style.valign)
 		
-		draw_text(originX + canvas.scroll.x, originY + canvas.scroll.y, text)
+		draw_text(originX, originY, text)
 		
 		draw_reset()
 	}
@@ -233,7 +262,9 @@ function UIElement(props = {}, children = []) constructor {
 	about_to_rerender = false
 	
 	static rerender = function() {
-		about_to_rerender = true
+		if (mounted) {
+			about_to_rerender = true
+		}
 	}
 	
 	static render = function() {
@@ -251,9 +282,7 @@ function UIElement(props = {}, children = []) constructor {
 		pointerX += style.margin.left
 		pointerY += style.margin.top
 		
-		
-		// padding is used here, but we also need the border
-		_draw(pointerX, pointerY)
+		_setDrawPos(pointerX, pointerY)
 		
 		pointerX += style.padding.left
 		pointerY += style.padding.top
@@ -324,7 +353,6 @@ function UIElement(props = {}, children = []) constructor {
 				
 				switch(style.display) {
 					case "block": // vertically
-						//show_debug_message("rendering a " + instanceof(el) + " at x=" + string(pointerX) + ", y=" + string(pointerY))
 						el._render(pointerX, pointerY)
 						
 						pointerY += el.style.margin.top
@@ -335,7 +363,7 @@ function UIElement(props = {}, children = []) constructor {
 						//+ el.style.padding.left
 						
 						// not fitting on the current line
-						if (pointerX + el.width + el.style.margin.left > originX + width - style.padding.right) {
+						if (pointerX + el.width + el.style.margin.left > originX + self.width - style.padding.right) {
 							pointerX = originX
 							
 							pointerY += el.style.margin.top
@@ -347,6 +375,7 @@ function UIElement(props = {}, children = []) constructor {
 						else {
 							el._render(pointerX, pointerY)
 							
+							// add afterwards because we already account for it inside _render()
 							pointerX += el.style.margin.left
 							pointerX += el.width
 							pointerX += el.style.margin.right
@@ -360,12 +389,13 @@ function UIElement(props = {}, children = []) constructor {
 				}
 			}
 			else if is_string(el) {
-				renderText(el, pointerX, pointerY)
+				_setTextDrawPos(pointerX, pointerY)
+				//renderText(el, pointerX, pointerY)
 			}
-			else {
-				// idk something went wrong ig
-				throw "Error: can't render an element of type " + typeof(el) + ". (" + string(el) + ")"
-			}
+			//else {
+			//	// idk something went wrong ig
+			//	throw "Error: can't render an element of type " + typeof(el) + ". (" + string(el) + ")"
+			//}
 			
 			draw_reset()
 			i++
@@ -382,14 +412,18 @@ function UIElement(props = {}, children = []) constructor {
 		return _torender
 	}
 	
-	// TODO: Implement these for UIElement and UICanvas
-	static forEach = function(func) {
+	// a deep forEach()
+	static forEach = function(func, includeText = true) {
 		var ch = get_children()
 		for(var i = 0; i < array_length(ch); i++) {
 			var child = ch[i]
-			func(child, i, self)
-			if (isUIElement(child))
-				child.forEach(func)
+			if (isUIElement(child)) {
+				func(child, i, self)
+				child.forEach(func, includeText)
+			}
+			else if is_string(child) and includeText {
+				func(child, i, self)
+			}
 		}
 	}
 	
@@ -466,6 +500,8 @@ function UIElement(props = {}, children = []) constructor {
 			mount()
 			
 			mounted = true
+			
+			trace(__element_type, "is mounted")
 		}
 	}
 	
@@ -571,3 +607,6 @@ function UIUnwrapElements(elements) constructor {
 		
 	return new_elements
 }
+
+
+#macro gmlx UIUnwrapElements
